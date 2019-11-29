@@ -3,12 +3,13 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
-        "flag"
 	"net/http"
-        "os"
-"path/filepath"
+	"os"
+	"path/filepath"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/jung-kurt/gofpdf"
@@ -61,14 +62,14 @@ func main() {
 	router.HandleFunc("/create/{name}/{email}", createUser).Methods("GET")
 	router.HandleFunc("/user/{id}", getUser).Methods("GET")
 	router.HandleFunc("/buyer/{user_id}/{name}/{edad}/{education}/{redes}/{industria}/{n_empleados}/{canal_comunicacion}/{responsabilidades}/{superior}/{aprende_en}/{herramientas}/{metrica}/{objetivos}/{dificultades}", buyerPdf).Methods("GET")
-	
-       var dir string
+
+	var dir string
 
 	flag.StringVar(&dir, "dir", ".", "the directory to serve files from. Defaults to the current dir")
 	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Dir(os.Args[0])+"/static/"))))
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8500","https://carlosgrowth.com","http://localhost:3000"},
+		AllowedOrigins:   []string{"http://localhost:8500", "https://carlosgrowth.com", "http://localhost:3000"},
 		AllowCredentials: false,
 	})
 
@@ -144,9 +145,10 @@ func buyerPdf(w http.ResponseWriter, r *http.Request) {
 	buyer.dificultades = params["dificultades"]
 
 	pdf := gofpdf.New("P", "mm", "A4", "")
+	tr := pdf.UnicodeTranslatorFromDescriptor("")
 	pdf.AddPage()
 	pdf.ImageOptions(
-		filepath.Dir(os.Args[0])+"/static/avatar.png",
+		filepath.Dir(os.Args[0])+"/static/brand/avatar.png",
 		170, 1,
 		20, 20,
 		false,
@@ -155,7 +157,7 @@ func buyerPdf(w http.ResponseWriter, r *http.Request) {
 		"",
 	)
 	pdf.ImageOptions(
-		filepath.Dir(os.Args[0])+"/static/logo.png",
+		filepath.Dir(os.Args[0])+"/static/brand/logo.png",
 		10, 10,
 		40, 10,
 		true,
@@ -172,48 +174,47 @@ func buyerPdf(w http.ResponseWriter, r *http.Request) {
 
 	pdf.SetFont("Arial", "B", 14)
 	pdf.SetTextColor(130, 29, 36)
-	pdf.MultiCell(190, 7, "Que es:", "0", "L", false)
+	pdf.MultiCell(190, 7, tr("¿Qué es?:"), "0", "L", false)
 	pdf.SetFont("Arial", "", 12)
 	pdf.SetTextColor(0, 0, 0)
 
-	pdf.MultiCell(190, 7, "Una buyer persona es una representacion semi-ficticia de nuestro consumidor final (o potencial) construida a partir su informacion demografica, comportamiento, necesidades y motivaciones. Al final, se trata de ponernos aun mas en los zapatos de nuestro publico objetivo para entender que necesitan de nosotros.", "0", "L", false)
+	pdf.MultiCell(190, 7, tr("Una buyer persona es una representación semi-ficticia de nuestro consumidor final (o potencial) construida a partir su información demográfica, comportamiento, necesidades y motivaciones. Al final, se trata de ponernos aún más en los zapatos de nuestro público objetivo para entender qué necesitan de nosotros."), "0", "L", false)
 	pdf.SetFont("Arial", "B", 14)
 	pdf.SetTextColor(130, 29, 36)
-	pdf.MultiCell(190, 7, "Para que sirve:", "0", "L", false)
+	pdf.MultiCell(190, 7, tr("¿Para qué sirve?:"), "0", "L", false)
 	pdf.SetFont("Arial", "", 12)
 	pdf.SetTextColor(0, 0, 0)
 
-	pdf.MultiCell(190, 7, "Los buyer personas son tan importantes hoy en dia porque ayudan a entender mejor a los clientes actuales y potenciales. Ademas, es importante tener en cuenta que facilitan la creacian y planificacion de contenido relevante y permiten saber como hay que desarrollar los productos y que tipo de servicios ofrecer dependiendo de sus comportamientos, necesidades y preocupaciones. En definitiva, el buyer persona nos permite disenar acciones de marketing mas efectivas.", "0", "L", false)
+	pdf.MultiCell(190, 7, tr("Los buyer personas son tan importantes hoy en día porque ayudan a entender mejor a los clientes actuales y potenciales. Además, es importante tener en cuenta que facilitan la creación y planificación de contenido relevante y permiten saber cómo hay que desarrollar los productos y qué tipo de servicios ofrecer dependiendo de sus comportamientos, necesidades y preocupaciones. En definitiva, el buyer persona nos permite diseñar acciones de marketing más efectivas."), "0", "L", false)
 	pdf.CellFormat(150, 7, "", "0", 3, "L", false, 0, "")
 	pdf.SetFont("Arial", "B", 12)
 	pdf.SetTextColor(255, 255, 255)
 	pdf.SetFillColor(130, 29, 36)
-	pdf.MultiCell(150, 7, "Esta es tu persona", "1", "L", true)
+	pdf.MultiCell(150, 7, tr("Esta es tu persona"), "1", "L", true)
 	pdf.SetFont("Arial", "", 12)
 	pdf.SetTextColor(0, 0, 0)
-	pdf.CellFormat(150, 7, "Se llama: "+buyer.name, "1", 3, "L", false, 0, "")
-	pdf.CellFormat(150, 7, "Tiene: "+buyer.edad, "1", 4, "L", false, 0, "")
-	pdf.CellFormat(150, 7, "Redes que usa: "+buyer.redes, "1", 5, "L", false, 0, "")
-	pdf.CellFormat(150, 7, "Industria en la que esta: "+buyer.industria, "1", 6, "L", false, 0, "")
-	pdf.CellFormat(150, 7, "Numero de empleados: "+buyer.n_empleados, "1", 7, "L", false, 0, "")
-	pdf.CellFormat(150, 7, "Se comunica usando: "+buyer.canal_comunicacion, "1", 8, "L", false, 0, "")
-	pdf.CellFormat(150, 7, "Sus responsabilidades son: "+buyer.responsabilidades, "1", 9, "L", false, 0, "")
-	pdf.CellFormat(150, 7, "Su Jefe es : "+buyer.superior, "1", 10, "L", false, 0, "")
-	pdf.CellFormat(150, 7, "Aprende usando : "+buyer.aprende_en, "1", 11, "L", false, 0, "")
-	pdf.CellFormat(150, 7, "Usa estas herramientas: "+buyer.herramientas, "1", 12, "L", false, 0, "")
-	pdf.CellFormat(150, 7, "Su Metrica: "+buyer.metrica, "1", 13, "L", false, 0, "")
-	pdf.CellFormat(150, 7, "Sus Objetivos: "+buyer.objetivos, "1", 14, "L", false, 0, "")
-	pdf.CellFormat(150, 7, "Sus Dificultades: "+buyer.dificultades, "1", 15, "L", false, 0, "")
+	pdf.CellFormat(150, 7, tr("Se llama: "+buyer.name), "1", 3, "L", false, 0, "")
+	pdf.CellFormat(150, 7, tr("Tiene: "+buyer.edad), "1", 4, "L", false, 0, "")
+	pdf.CellFormat(150, 7, tr("Redes que usa: "+buyer.redes), "1", 5, "L", false, 0, "")
+	pdf.CellFormat(150, 7, tr("Industria en la que está: "+buyer.industria), "1", 6, "L", false, 0, "")
+	pdf.CellFormat(150, 7, tr("Número de empleados: "+buyer.n_empleados), "1", 7, "L", false, 0, "")
+	pdf.CellFormat(150, 7, tr("Se comunica usando: "+buyer.canal_comunicacion), "1", 8, "L", false, 0, "")
+	pdf.CellFormat(150, 7, tr("Sus responsabilidades son: "+buyer.responsabilidades), "1", 9, "L", false, 0, "")
+	pdf.CellFormat(150, 7, tr("Su Jefe es : "+buyer.superior), "1", 10, "L", false, 0, "")
+	pdf.CellFormat(150, 7, tr("Aprende usando : "+buyer.aprende_en), "1", 11, "L", false, 0, "")
+	pdf.CellFormat(150, 7, tr("Usa estas herramientas: "+buyer.herramientas), "1", 12, "L", false, 0, "")
+	pdf.CellFormat(150, 7, tr("Su Métrica: "+buyer.metrica), "1", 13, "L", false, 0, "")
+	pdf.CellFormat(150, 7, tr("Sus Objetivos: "+buyer.objetivos), "1", 14, "L", false, 0, "")
+	pdf.CellFormat(150, 7, tr("Sus Dificultades: "+buyer.dificultades), "1", 15, "L", false, 0, "")
 
-	pdf.OutputFileAndClose(filepath.Dir(os.Args[0])+"/static/buyer_" + params["user_id"] + ".pdf")
+	pdf.OutputFileAndClose(filepath.Dir(os.Args[0]) + "/static/buyer_" + params["user_id"] + ".pdf")
 
 	if err != nil {
 		panic(err)
 	}
-var ruta = os.Args[0]
+	var ruta = os.Args[0]
 	fmt.Fprintf(w, `Done`+ruta)
 }
 func apiDoc(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `Bienvenidos al api`)
 }
-
