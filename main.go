@@ -128,6 +128,11 @@ func buyerPdf(w http.ResponseWriter, r *http.Request) {
 	var buyer Buyer
 	params := mux.Vars(r)
 
+	_, err := db.Query("INSERT INTO buyers_persona(respon_persona,nombre_persona,edad_persona,redes_persona, industria_persona,n_empleados,m_comunicacion,jefe_persona,aprende_persona,herramientas_persona, metrica_persona,objetivos_persona,dificultades_persona,estudios_persona) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", params["responsabilidades"], params["name"], params["edad"], params["redes"], params["industria"], params["n_empleados"], params["canal_comunicacion"], params["superior"], params["aprende_en"], params["herramientas"], params["metrica"], params["objetivos"], params["dificultades"], params["education"])
+	if err != nil {
+		panic(err.Error())
+	}
+
 	buyer.id = params["user_id"]
 	buyer.name = params["name"]
 	buyer.edad = params["edad"]
