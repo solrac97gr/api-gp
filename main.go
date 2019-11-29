@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+        "flag"
 	"net/http"
-
+        "os"
+"path/filepath"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/jung-kurt/gofpdf"
@@ -52,19 +54,21 @@ func main() {
 	}
 	defer db.Close()
 
-	router := mux.NewRouter().StrictSlash(true)
+	router := mux.NewRouter()
 
 	router.HandleFunc("/", apiDoc).Methods("GET")
 	router.HandleFunc("/users", getUsers).Methods("GET")
 	router.HandleFunc("/create/{name}/{email}", createUser).Methods("GET")
 	router.HandleFunc("/user/{id}", getUser).Methods("GET")
 	router.HandleFunc("/buyer/{user_id}/{name}/{edad}/{education}/{redes}/{industria}/{n_empleados}/{canal_comunicacion}/{responsabilidades}/{superior}/{aprende_en}/{herramientas}/{metrica}/{objetivos}/{dificultades}", buyerPdf).Methods("GET")
-	router.
-		PathPrefix(STATIC_DIR).
-		Handler(http.StripPrefix(STATIC_DIR, http.FileServer(http.Dir("."+STATIC_DIR))))
+	
+       var dir string
+
+	flag.StringVar(&dir, "dir", ".", "the directory to serve files from. Defaults to the current dir")
+	router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir(filepath.Dir(os.Args[0])+"/static/"))))
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8500"},
+		AllowedOrigins:   []string{"http://localhost:8500","https://carlosgrowth.com","http://localhost:3000"},
 		AllowCredentials: false,
 	})
 
@@ -92,7 +96,7 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 func createUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	params := mux.Vars((r))
 	_, err := db.Query("INSERT INTO users(email,name) VALUES(?,?)", params["name"], params["email"])
 	if err != nil {
@@ -119,6 +123,7 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func buyerPdf(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	var buyer Buyer
 	params := mux.Vars(r)
 
@@ -141,7 +146,7 @@ func buyerPdf(w http.ResponseWriter, r *http.Request) {
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	pdf.AddPage()
 	pdf.ImageOptions(
-		"./static/avatar.png",
+		filepath.Dir(os.Args[0])+"/static/avatar.png",
 		170, 1,
 		20, 20,
 		false,
@@ -150,7 +155,7 @@ func buyerPdf(w http.ResponseWriter, r *http.Request) {
 		"",
 	)
 	pdf.ImageOptions(
-		"./static/logo.png",
+		filepath.Dir(os.Args[0])+"/static/logo.png",
 		10, 10,
 		40, 10,
 		true,
@@ -200,12 +205,13 @@ func buyerPdf(w http.ResponseWriter, r *http.Request) {
 	pdf.CellFormat(150, 7, "Sus Objetivos: "+buyer.objetivos, "1", 14, "L", false, 0, "")
 	pdf.CellFormat(150, 7, "Sus Dificultades: "+buyer.dificultades, "1", 15, "L", false, 0, "")
 
-	pdf.OutputFileAndClose("./static/buyer_" + params["user_id"] + ".pdf")
+	pdf.OutputFileAndClose(filepath.Dir(os.Args[0])+"/static/buyer_" + params["user_id"] + ".pdf")
 
 	if err != nil {
 		panic(err)
 	}
-	fmt.Fprintf(w, `Done`)
+var ruta = os.Args[0]
+	fmt.Fprintf(w, `Done`+ruta)
 }
 func apiDoc(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `Bienvenidos al api`)
