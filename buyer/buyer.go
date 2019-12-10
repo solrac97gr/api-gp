@@ -20,7 +20,7 @@ type Buyer struct {
 	condicion_laboral string
 	titulo            string
 	ingresos_anuales  float32
-
+	//CONDUCTA PERSONAL
 	necesita_ser_feliz     string
 	que_hace_no_trabajando string
 	en_que_gasta           string
@@ -40,6 +40,27 @@ type Buyer struct {
 	principal_informacion_busca  string
 	marcas_sigue                 string
 	compra_online                string
+	horario_internet             string
+	influenciadrores_online      string
+	lenguaje_usado               string
+	//CONDUCTA LABORAL
+	problema_laboral_solucionar string
+	mayor_responsabilidad       string
+	problema_laboral_infeliz    string
+	aptitudes_buen_trabajo      string
+	superior                    string
+	influencia_laboral          string
+	aspiracion_laboral          string
+	//RELACIÓN CON LA EMPRESA
+	porque_nos_necesita          string
+	como_nos_conocieron          string
+	aspectos_ayudamos            string
+	aspecto_evalua_antes_comprar string
+	sentimiento_abandonarlo      string
+	impacto_empresa_vida         string
+	impacto_financiero           string
+	mayor_objecion               string
+	tiempo_colaborando           string
 }
 
 func BuyerPdf(w http.ResponseWriter, r *http.Request) {
