@@ -29,7 +29,7 @@ func main() {
 	router.HandleFunc("/users", users.GetUsers).Methods("GET")
 	router.HandleFunc("/create/{name}/{email}", users.CreateUser).Methods("GET")
 	router.HandleFunc("/user/{id}", users.GetUser).Methods("GET")
-	router.HandleFunc("/buyer/{id}/{name}/{edad}/{education}/{redes}/{industria}/{n_empleados}/{canal_comunicacion}/{responsabilidades}/{superior}/{aprende_en}/{herramientas}/{metrica}/{objetivos}/{dificultades}/{type_id}", buyer.BuyerPdf).Methods("GET")
+	router.HandleFunc("/buyer", buyer.BuyerPdf).Methods("POST")
 
 	var dir string
 

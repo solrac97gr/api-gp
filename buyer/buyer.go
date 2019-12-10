@@ -1,116 +1,132 @@
 package buyer
 
 import (
+	"encoding/json"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
-
-	"github.com/gorilla/mux"
-	"github.com/jung-kurt/gofpdf"
 )
+
+var err error
 
 type Buyer struct {
 	//PERSONAL
-	id                int
-	nombre            string
-	edad              int
-	estado_civil      string
-	educacion         string
-	condicion_laboral string
-	titulo            string
-	ingresos_anuales  float32
+	Id                int     `json:"id"`
+	Nombre            string  `json:"nombre"`
+	Edad              int     `json:"edad"`
+	Estado_civil      string  `json:"estado_civil"`
+	Educacion         string  `json:"educacion"`
+	Condicion_laboral string  `json:"condicion_laboral"`
+	Titulo            string  `json:"titulo"`
+	Ingresos_anuales  float64 `json:"ingresos_anuales"`
 	//CONDUCTA PERSONAL
-	necesita_ser_feliz     string
-	que_hace_no_trabajando string
-	en_que_gasta           string
-	donde_pasa_mas_tiempo  string
-	como_mide_exito        string
-	personas_importantes   string
+	Necesita_ser_feliz     string `json:"necesita_ser_feliz"`
+	Que_hace_no_trabajando string `json:"que_hace_no_trabajando"`
+	En_que_gasta           string `json:"en_que_gasta"`
+	Donde_pasa_mas_tiempo  string `json:"donde_pasa_mas_tiempo"`
+	Como_mide_exito        string `json:"como_mide_exito"`
+	Personas_importantes   string `json:"personas_importantes"`
 	//CONDUCTA ONLINE
-	tiempo_internet              string
-	dispositivos_usa             string
-	red_social_preferida         string
-	blogs_favoritos              string
-	contenido_lee                string
-	mayores_intereses            string
-	donde_busca_info             string
-	formato_prefiere_aprender    string
-	principal_actividad_internet string
-	principal_informacion_busca  string
-	marcas_sigue                 string
-	compra_online                string
-	horario_internet             string
-	influenciadrores_online      string
-	lenguaje_usado               string
+	Tiempo_internet              string `json:"tiempo_internet"`
+	Dispositivos_usa             string `json:"dispositivos_usa"`
+	Red_social_preferida         string `json:"red_social_preferida"`
+	Blogs_favoritos              string `json:"blogs_favoritos"`
+	Contenido_lee                string `json:"contenido_lee"`
+	Mayores_intereses            string `json:"mayores_intereses"`
+	Donde_busca_info             string `json:"donde_busca_info"`
+	Formato_prefiere_aprender    string `json:"formato_prefiere_aprender"`
+	Principal_actividad_internet string `json:"principal_actividad_internet"`
+	Principal_informacion_busca  string `json:"principal_informacion_busca"`
+	Marcas_sigue                 string `json:"marcas_sigue"`
+	Compra_online                string `json:"compra_online"`
+	Horario_internet             string `json:"horario_internet"`
+	Influenciadores_online       string `json:"influenciadores_online"`
+	Lenguaje_usado               string `json:"lenguaje_usado"`
+
 	//CONDUCTA LABORAL
-	problema_laboral_solucionar string
-	mayor_responsabilidad       string
-	problema_laboral_infeliz    string
-	aptitudes_buen_trabajo      string
-	superior                    string
-	influencia_laboral          string
-	aspiracion_laboral          string
+	Problema_laboral_solucionar string `json:"problema_laboral_solucionar"`
+	Mayor_responsabilidad       string `json:"mayor_responsabilidad"`
+	Problema_laboral_infeliz    string `json:"problema_laboral_infeliz"`
+	Aptitudes_buen_trabajo      string `json:"aptitudes_buen_trabajo"`
+	Superior                    string `json:"superior"`
+	Influencia_laboral          string `json:"influencia_laboral"`
+	Aspiracion_laboral          string `json:"aspiracion_laboral"`
+
 	//RELACIÓN CON LA EMPRESA
-	porque_nos_necesita          string
-	como_nos_conocieron          string
-	aspectos_ayudamos            string
-	aspecto_evalua_antes_comprar string
-	sentimiento_abandonarlo      string
-	impacto_empresa_vida         string
-	impacto_financiero           string
-	mayor_objecion               string
-	tiempo_colaborando           string
+	Porque_nos_necesita          string `json:"porque_nos_necesita"`
+	Como_nos_conocieron          string `json:"como_nos_conocieron"`
+	Aspectos_ayudamos            string `json:"aspectos_ayudamos"`
+	Aspecto_evalua_antes_comprar string `json:"aspecto_evalua_antes_comprar"`
+	Sentimiento_abandonarlo      string `json:"sentimiento_abandonarlo"`
+	Impacto_empresa_vida         string `json:"impacto_empresa_vida"`
+	Impacto_financiero           string `json:"impacto_financiero"`
+	Mayor_objecion               string `json:"mayor_objecion"`
+	Tiempo_colaborando           string `json:"tiempo_colaborando"`
 }
 
 func BuyerPdf(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	var buyer Buyer
-	params := mux.Vars(r)
-	convert_id, err := strconv.Atoi(params["id"])
+	var persona Buyer
+	//DATA PERSONAL
+	persona.Nombre = r.FormValue("nombre")
+	persona.Edad, err = strconv.Atoi(r.FormValue("edad"))
 	if err != nil {
 		panic(err.Error())
 	}
-
-	conver_edad, err := strconv.Atoi(params["edad"])
+	persona.Estado_civil = r.FormValue("estado_civil")
+	persona.Educacion = r.FormValue("educacion")
+	persona.Condicion_laboral = r.FormValue("nombre")
+	persona.Titulo = r.FormValue("titulo")
+	persona.Ingresos_anuales, err = strconv.ParseFloat(r.FormValue("ingresos_anuales"), 32)
 	if err != nil {
 		panic(err.Error())
 	}
-	conver_empleados, err := strconv.Atoi(params["n_empleados"])
-	if err != nil {
-		panic(err.Error())
-	}
-	conver_typeid, err := strconv.Atoi(params["type_id"])
+	//CONDUCTA PERSONAL
+	persona.Necesita_ser_feliz = r.FormValue("necesita_ser_feliz")
+	persona.Que_hace_no_trabajando = r.FormValue("que_hace_no_trabajando")
+	persona.En_que_gasta = r.FormValue("en_que_gasta")
+	persona.Donde_pasa_mas_tiempo = r.FormValue("donde_pasa_mas_tiempo")
+	persona.Como_mide_exito = r.FormValue("como_mide_exito")
+	persona.Personas_importantes = r.FormValue("personas_importantes")
+	//CONDUCTA ONLINE
+	persona.Tiempo_internet = r.FormValue("tiempo_internet")
+	persona.Dispositivos_usa = r.FormValue("dispositivos_usa")
+	persona.Red_social_preferida = r.FormValue("red_social_preferida")
+	persona.Blogs_favoritos = r.FormValue("blogs_favoritos")
+	persona.Contenido_lee = r.FormValue("contenido_lee")
+	persona.Mayores_intereses = r.FormValue("mayores_intereses")
+	persona.Donde_busca_info = r.FormValue("donde_busca_info")
+	persona.Formato_prefiere_aprender = r.FormValue("formato_prefiere_aprender")
+	persona.Principal_actividad_internet = r.FormValue("principal_actividad_internet")
+	persona.Principal_informacion_busca = r.FormValue("principal_informacion_busca")
+	persona.Marcas_sigue = r.FormValue("marcas_sigue")
+	persona.Compra_online = r.FormValue("compra_online")
+	persona.Horario_internet = r.FormValue("horario_internet")
+	persona.Influenciadores_online = r.FormValue("influenciadores_online")
+	persona.Lenguaje_usado = r.FormValue("lenguaje_usado")
+	//CONDUCTA LABORAL
+	persona.Problema_laboral_solucionar = r.FormValue("problema_laboral_solucionar")
+	persona.Mayor_responsabilidad = r.FormValue("mayor_responsabilidad")
+	persona.Problema_laboral_infeliz = r.FormValue("problema_laboral_infeliz")
+	persona.Aptitudes_buen_trabajo = r.FormValue("aptitudes_buen_trabajo")
+	persona.Superior = r.FormValue("superior")
+	persona.Influencia_laboral = r.FormValue("influencia_laboral")
+	persona.Aspiracion_laboral = r.FormValue("aspiracion_laboral")
 
-	//ints converted
-	buyer.id = convert_id
-	buyer.edad = conver_edad
-	buyer.n_empleados = conver_empleados
-	buyer.type_id = conver_typeid
-
-	//string data
-
-	buyer.name = params["name"]
-	buyer.educacion = params["education"]
-	buyer.redes = params["redes"]
-	buyer.industria = params["industria"]
-	buyer.canal_comunicacion = params["canal_comunicacion"]
-	buyer.responsabilidades = params["responsabilidades"]
-	buyer.superior = params["superior"]
-	buyer.aprende_en = params["aprende_en"]
-	buyer.herramientas = params["herramientas"]
-	buyer.metrica = params["metrica"]
-	buyer.objetivos = params["objetivos"]
-	buyer.dificultades = params["dificultades"]
-
-	if conver_typeid == 1 {
-		generatePDFB2B(buyer)
-	} else {
-		generatePDFB2C(buyer)
-	}
-
+	//RELACIÓN CON LA EMPRESA
+	persona.Porque_nos_necesita = r.FormValue("porque_nos_necesita")
+	persona.Como_nos_conocieron = r.FormValue("como_nos_conocieron")
+	persona.Aspectos_ayudamos = r.FormValue("aspectos_ayudamos")
+	persona.Aspecto_evalua_antes_comprar = r.FormValue("aspecto_evalua_antes_comprar")
+	persona.Sentimiento_abandonarlo = r.FormValue("sentimiento_abandonarlo")
+	persona.Impacto_empresa_vida = r.FormValue("impacto_empresa_vida")
+	persona.Impacto_financiero = r.FormValue("impacto_financiero")
+	persona.Mayor_objecion = r.FormValue("mayor_objecion")
+	persona.Tiempo_colaborando = r.FormValue("tiempo_colaborando")
+	//RESPONDE CON LO QUE LE MANDAN
+	json.NewEncoder(w).Encode(&persona)
 }
 
+/*
 func generatePDFB2B(buyer Buyer) {
 	//convert INT to string
 	convert_id := strconv.Itoa(buyer.id)
@@ -185,4 +201,4 @@ func generatePDFB2B(buyer Buyer) {
 
 func generatePDFB2C(buyer Buyer) {
 
-}
+} */
